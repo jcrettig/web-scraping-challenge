@@ -1,4 +1,7 @@
 #Dependencies
+#from pip import main
+#main(['install', '-U', 'webdriver_manager'])
+
 
 from bs4 import BeautifulSoup as bs
 import pandas as pd
@@ -14,12 +17,20 @@ def init_browser():
 
 #NASA Mars News
 
-#Setup scrape
-def scrape_info(): 
-    browser = init_browser()
-
     # URL of page to scrape
     mng_url = "https://mars.nasa.gov/news/"
+    # Retrieve page with the requests module
+    response = requests.get(mng_url)
+    # Create BeautifulSoup object; parse with 'html.parser'
+    soup = bs(response.text, 'html.parser')
+
+    #Scrape NASA website for News Title and assign text to a variable
+    news_title = soup.find('div', class_="content_title").text
+
+
+#Setup scrape for Mars paragraph
+def scrape_info(): 
+    browser = init_browser()
     browser.visit(mng_url)
 
     time.sleep(1)
@@ -28,14 +39,12 @@ def scrape_info():
     html = browser.html
     soup = bs(response.text, 'html.parser')
 
-    #Scrape NASA website for News Title and assign text to a variable
-    news_title = soup.find('div', class_="content_title").text
-
     #Scrape NASA website for News for paragraph and assign text to a variable                               *********
-    #news_p = soup.find('div', class_="article_teaser_body").text
+    news_p = soup.find_all('div', class_="article_teaser_body")[0]
+    news_p = news_p.text
 
     #Temporary news_py until we figure out what is wrong below                                              **********
-    news_p = "The first trek of the agency’s largest, most advanced rover yet on the Red Planet marks a major milestone before science operations get under way."
+    #news_p = "The first trek of the agency’s largest, most advanced rover yet on the Red Planet marks a major milestone before science operations get under way."
 
     # Close the browser after scraping
     browser.quit()
@@ -57,13 +66,13 @@ def scrape_info():
     soup = bs(response.text, 'html.parser')
 
     #click the "Full Image" button to pull up the feature image                                                 *******
-    #browser.links.find_by_partial_text("Full Image").click()
+    browser.links.find_by_partial_text("FULL IMAGE").click()
 
-    #relative_image_path = soup.find_all('img')[0]["src"]
-    #featured_image_url = url + relative_image_path
+    relative_image_path = soup.find_all('img')[0]["src"]
+    featured_image_url = jpl_url + relative_image_path
 
     #Temporary until we figure out above.                                                                       *********
-    featured_image_url = https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/image/featured/mars3.jpg
+    #featured_image_url = https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/image/featured/mars3.jpg
 
      # Close the browser after scraping
     browser.quit()
@@ -104,7 +113,7 @@ def scrape_info():
 
 #Mars Hemispheres
 
-    #Create a python dictionary of the title and image url                                  4th bullet point of instructions*******
+    #Create a python dictionary of the title and image url                                  
     #string for the full resolution images of the Mars Hemispheres
 
     hemisphere_image_urls = [
@@ -114,15 +123,13 @@ def scrape_info():
         {"title": "Syrtis Major Hemisphere", "img_url": "https://astrogeology.usgs.gov/search/map/Mars/Viking/syrtis_major_enhanced"},
     ]
 
-    #Append the dictionary with the image url string and the hemisphere title to a list.            not sure what this means *********
-    # This list will contain one dictionary for each hemisphere.
-
-    #Store data in a dictionary
+        #Store data in a dictionary
 
     Mars_data = {
         "news_title" : news_title,
         "news_p" : news_p, 
         "featured_image_url" : featured_image_url,
+        "mars_facts_table_html": mars_facts_table_html,
         "hemisphere_image_urls" : hemisphere_image_urls
     }
 
